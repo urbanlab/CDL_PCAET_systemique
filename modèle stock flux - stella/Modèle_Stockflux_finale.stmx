@@ -1,0 +1,952 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE">
+	<header>
+		<smile version="1.0" namespace="std, isee"/>
+		<name>StellaFinal</name>
+		<uuid>8fcdf4ee-f25d-46a2-a83a-7cccc394e45e</uuid>
+		<vendor>isee systems, inc.</vendor>
+		<product version="4.1.2" isee:build_number="3810" isee:saved_by_v1="true" lang="en">Stella Architect</product>
+	</header>
+	<ai_information>
+		<status verified="false"/>
+	</ai_information>
+	<sim_specs isee:sim_duration="1.5" isee:run_prefix="Run" isee:simulation_delay="0.3" isee:restore_on_start="false" method="Euler" time_units="Year" isee:instantaneous_flows="false" isee:ignore_module_errors="false" isee:strict_units="true" isee:loop_scores="true" isee:loop_exhaustive_allowed="1000">
+		<start>0</start>
+		<stop>5</stop>
+		<dt reciprocal="true">4</dt>
+	</sim_specs>
+	<isee:prefs saved_runs="5" keep="false" show_module_prefix="true" live_update_on_drag="true" show_restore_buttons="false" layer="model" isee:design="Deluxe Prev-Next Blue Green Pastel" isee:design_custom="false" interface_scale_ui="true" interface_max_page_width="10000" interface_max_page_height="10000" interface_min_page_width="0" interface_min_page_height="0" rifp="true">
+		<isee:tag_styles>
+			<isee:tag_style tag="Interface"/>
+			<isee:tag_style tag="Output"/>
+			<isee:tag_style tag="Parameter"/>
+			<isee:tag_style tag="Policy"/>
+		</isee:tag_styles>
+	</isee:prefs>
+	<isee:multiplayer_settings include_chat="true" allow_observers="false" advance_time_increment="1" max_advance_time_in_ms="0" model_stops_when_players_drop="false" observer_start_page="home_page" enabled="false"/>
+	<isee:time_formats default_format="Builtin">
+		<isee:time_format name="Builtin" type="adaptive"/>
+	</isee:time_formats>
+	<isee:number_format_extenders/>
+	<default_format/>
+	<model_units>
+		<unit name="Buildings">
+			<eqn/>
+			<alias>building</alias>
+		</unit>
+		<unit name="Dimensionless">
+			<eqn>1</eqn>
+			<alias>dmnl</alias>
+			<alias>unitless</alias>
+			<alias>fraction</alias>
+		</unit>
+		<unit name="Factories">
+			<eqn/>
+			<alias>factory</alias>
+		</unit>
+		<unit name="Euros">
+			<eqn/>
+			<alias>€</alias>
+			<alias>EUR</alias>
+			<alias>euro</alias>
+		</unit>
+		<unit name="Years">
+			<eqn/>
+			<alias>yr</alias>
+			<alias>year</alias>
+		</unit>
+	</model_units>
+	<model>
+		<variables>
+			<stock name="Logements à rénover">
+				<eqn>50800</eqn>
+				<inflow>Entrée_en_besoins_de_rénovation_énergétique</inflow>
+				<outflow>Flux_de_rénovation</outflow>
+				<non_negative/>
+				<units>Buildings</units>
+			</stock>
+			<stock name="Logements rénovés">
+				<eqn>18601</eqn>
+				<inflow>Flux_de_rénovation</inflow>
+				<outflow>Retour_en_logements_à_rénover</outflow>
+				<non_negative/>
+				<units>Buildings</units>
+			</stock>
+			<flow name="Flux de rénovation">
+				<eqn>Volonté_d’adopter_l’ÉcoRénov
+  * (Logements_à_rénover / Durée_de_rénovation)
+  * (Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov / (1 + Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov))
+  * (Stock_de_matériaux_disponibles / (1 + Stock_de_matériaux_disponibles))</eqn>
+				<non_negative/>
+				<units>Buildings/Year</units>
+			</flow>
+			<flow name="Entrée en besoins de\nrénovation énergétique">
+				<eqn>Retour_en_logements_à_rénover</eqn>
+				<non_negative/>
+				<units>Buildings/Year</units>
+			</flow>
+			<stock name="Capacité financière\npublique pour l'Ecorenov">
+				<eqn>178000000</eqn>
+				<inflow>&quot;Recharge_/_allocation_budgétaire&quot;</inflow>
+				<outflow>Financement_des_aides</outflow>
+				<outflow>&quot;Dépenses_pour_main-d’œuvre&quot;</outflow>
+				<outflow>Obtention_matières_prémières</outflow>
+				<outflow>Budget_accompagnement</outflow>
+				<non_negative/>
+				<units>Euros</units>
+			</stock>
+			<flow name="Financement des aides">
+				<eqn>MAX(0, Capacité_financière_publique_pour_l&apos;Ecorenov * Taux_de_financement_pour_aides * Taux_depense_annuel)</eqn>
+				<non_negative/>
+				<units>Euros/Year</units>
+			</flow>
+			<flow name="Dépenses pour\nmain-d’œuvre">
+				<eqn>MAX(0, &quot;Taux_de_financement_pour_main/maitrise_d&apos;oeuvre&quot; * Capacité_financière_publique_pour_l&apos;Ecorenov * Taux_depense_annuel)</eqn>
+				<non_negative/>
+				<units>Euros/Year</units>
+			</flow>
+			<flow name="Obtention\nmatières prémières">
+				<eqn>MAX(0, Capacité_financière_publique_pour_l&apos;Ecorenov * Taux_de_financement_pour_matières_prémières * Taux_depense_annuel)</eqn>
+				<non_negative/>
+				<units>Euros/Year</units>
+			</flow>
+			<flow name="Budget accompagnement">
+				<eqn>MAX(0, Capacité_financière_publique_pour_l&apos;Ecorenov * Taux_de_financement_pour_accompagnement * Taux_depense_annuel)</eqn>
+				<non_negative/>
+				<units>Euros/Year</units>
+			</flow>
+			<flow name="Recharge / allocation\nbudgétaire">
+				<eqn>Economies_réalisées_via_Ecorénov
+  * (1 + &quot;Pression_politique_/_succès_du_programme&quot;)</eqn>
+				<non_negative/>
+				<units>Euros/Year</units>
+			</flow>
+			<stock name="Entreprises qualifiées\ndisponibles\npour l’ÉcoRénov">
+				<eqn>274</eqn>
+				<inflow>Formation</inflow>
+				<outflow>Sortie</outflow>
+				<non_negative/>
+				<units>Factories</units>
+			</stock>
+			<stock name="Stock de matériaux\ndisponibles">
+				<eqn>10000</eqn>
+				<inflow>Approvisionnement_en_matériaux</inflow>
+				<outflow>Consommation_de_matériaux</outflow>
+				<non_negative/>
+				<units>unitees_materiaux</units>
+			</stock>
+			<flow name="Formation">
+				<eqn>MAX(0,
+  (&quot;Dépenses_pour_main-d’œuvre&quot; / Cout_formation_par_entreprise)
+  * Capacité_de_formation
+  * Offres_d&apos;emploi
+)</eqn>
+				<non_negative/>
+				<units>Factories/Year</units>
+			</flow>
+			<flow name="Sortie">
+				<eqn>Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov * Taux_de_sortie</eqn>
+				<non_negative/>
+				<units>Factories/Year</units>
+			</flow>
+			<flow name="Approvisionnement en\nmatériaux">
+				<eqn>(Obtention_matières_prémières / (Prix_unitaire_materiaux + 1))
+  * Taux_d&apos;extraction_des_matières_prémières
+  * (Disponibilité_de_bons_matériaux / (1 + Disponibilité_de_bons_matériaux))</eqn>
+				<non_negative/>
+				<units>unitees_materiaux/Year</units>
+			</flow>
+			<flow name="Consommation de\nmatériaux">
+				<eqn>Flux_de_rénovation
+  * Matériaux_rénovation
+  * (Stock_de_matériaux_disponibles / (1 + Stock_de_matériaux_disponibles))</eqn>
+				<non_negative/>
+				<units>unitees_materiaux/Year</units>
+			</flow>
+			<aux name="Capacité de\nformation">
+				<eqn>MIN(1, 0.6 + Taux_augmentation_capacité_formation * TIME)</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Offres\nd'emploi">
+				<eqn>Logements_à_rénover / (Logements_à_rénover + 18601)</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Taux de sortie">
+				<eqn>0.01</eqn>
+				<units>1/Year</units>
+			</aux>
+			<aux name="Taux d'extraction des\nmatières prémières">
+				<eqn>MIN(1, MAX(0,
+  Disponibilité_de_bons_matériaux
+  / (Disponibilité_de_bons_matériaux + 1000)
+))</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Volonté d’adopter\nl’ÉcoRénov">
+				<eqn>MIN(1, MAX(0,
+    0.25 * (1 - MIN(1, MAX(0, Niveau_aides / Reste_à_charge_max)))
+  + 0.15 * Confiance_des_ménages
+  + 0.15 * &quot;Communication_/_Conseil_(accompagnement)&quot;
+  + 0.15 * Influence_sociale
+  + 0.15 * Emissions_de_GES_évitées_sans_dimension
+  + 0.15 * Qualité_et_confort_des_logements_rénovés
+))</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Influence sociale">
+				<eqn>MIN(1, MAX(0,
+  0.5 * Cout_de_la_consommation_énérgétique_pour_les_ménages
++ 0.5 * (Logements_rénovés / (Logements_rénovés + 70000))
+))</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Communication / Conseil\n(accompagnement)">
+				<eqn>MIN(1, MAX(0,
+  Budget_accompagnement / (Budget_accompagnement + Aides_accompagnement)
+))</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Niveau aides">
+				<eqn>Aides_norm</eqn>
+				<gf>
+					<xscale min="0" max="18560000"/>
+					<yscale min="0" max="30000"/>
+					<ypts>30000,27000,24000,21000,18000,15000,12000,9000,6000,3000,0</ypts>
+				</gf>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Prix unitaire\nmateriaux">
+				<eqn>1000</eqn>
+				<units>Euros/unitees_materiaux</units>
+			</aux>
+			<aux name="Disponibilité de\nbons matériaux">
+				<eqn>0.8 * Stock_de_matériaux_disponibles</eqn>
+				<units>unitees_materiaux</units>
+			</aux>
+			<aux name="Pression politique /\nsuccès du programme">
+				<eqn>0.3</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Cout de la\nconsommation\nénérgétique pour\nles ménages">
+				<eqn>(( &quot;Logements_à_rénover_+_Logements_rénovés&quot; * 20000 * 0.1940) - (Consommation_énérgétique_des_logements * 0.1940)) / (&quot;Logements_à_rénover_+_Logements_rénovés&quot; * 12000 * 0.1940)</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Durée de\nrénovation">
+				<eqn>Durée_référence * (Main_référence / MAX(1, Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov))</eqn>
+				<units>Year</units>
+			</aux>
+			<flow name="Retour en logements\nà rénover">
+				<eqn>Logements_rénovés * Taux_retour_logements</eqn>
+				<non_negative/>
+				<units>Buildings/Year</units>
+			</flow>
+			<aux name="Taux de financement\npour aides">
+				<eqn>0.1</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Taux de financement\npour main/maitrise d'oeuvre">
+				<eqn>0.1</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Taux de financement\npour matières prémières">
+				<eqn>0.1</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Taux de financement\npour accompagnement">
+				<eqn>0.7</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Confiance des ménages">
+				<eqn>Aides_norm</eqn>
+				<gf>
+					<xscale min="0" max="18560000"/>
+					<yscale min="0" max="1"/>
+					<ypts>0,0.1111,0.2222,0.3333,0.4444,0.5556,0.6667,0.7778,0.8889,1</ypts>
+				</gf>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Qualité et confort\ndes logements\nrénovés">
+				<eqn>MIN(1, MAX(0,
+    Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov
+    / (Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov + 274)
+))</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Economies réalisées\nvia Ecorénov">
+				<eqn>Flux_de_rénovation * Economies_réalisées_par_une_rénovation</eqn>
+				<units>Euros/Year</units>
+			</aux>
+			<aux name="Economies réalisées\npar une rénovation">
+				<eqn>5000</eqn>
+				<units>Euros/Building</units>
+			</aux>
+			<aux name="Taux depense annuel">
+				<eqn>0.2</eqn>
+				<units>1/Year</units>
+			</aux>
+			<aux name="Cout formation\npar entreprise">
+				<eqn>3000000</eqn>
+				<units>Euros/Factory</units>
+			</aux>
+			<aux name="Matériaux rénovation">
+				<eqn>0.4</eqn>
+				<units>unitees_materiaux/building</units>
+			</aux>
+			<aux name="Taux augmentation\ncapacité formation">
+				<eqn>0.2</eqn>
+				<units>1/Year</units>
+			</aux>
+			<aux name="Durée référence">
+				<eqn>1</eqn>
+				<units>Year</units>
+			</aux>
+			<aux name="Main référence">
+				<eqn>274</eqn>
+				<units>Factories</units>
+			</aux>
+			<aux name="Taux retour logements">
+				<eqn>0.02</eqn>
+				<units>1/Year</units>
+			</aux>
+			<aux name="Reste à charge max">
+				<eqn>30000</eqn>
+				<units>Euros</units>
+			</aux>
+			<aux name="Aides norm">
+				<eqn>MIN(1, MAX(0, Financement_des_aides / Aides_ref))</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Aides ref">
+				<eqn>Capacité_financière_publique_pour_l&apos;Ecorenov*Taux_de_financement_pour_aides*Taux_depense_annuel</eqn>
+				<units>Euros/Year</units>
+			</aux>
+			<aux name="Aides accompagnement">
+				<eqn>Capacité_financière_publique_pour_l&apos;Ecorenov*Taux_de_financement_pour_accompagnement*Taux_depense_annuel</eqn>
+				<units>Euros/Year</units>
+			</aux>
+			<aux name="Emissions de GES\névitées">
+				<eqn>(&quot;Logements_à_rénover_+_Logements_rénovés&quot;*Consommation_unitaire_passoire-Consommation_énérgétique_des_logements)*Facteur_d&apos;émission_GES_moyen</eqn>
+				<units>kgCO2/Year</units>
+			</aux>
+			<aux name="Facteur d'émission\nGES moyen">
+				<eqn>0.2</eqn>
+				<units>kgCO2/kWh</units>
+			</aux>
+			<aux name="Consommation\nénérgétique\ndes logements">
+				<eqn>(Logements_rénovés *Consommation_unitaire_logement_rénové) + ((Logements_à_rénover) * Consommation_unitaire_passoire)</eqn>
+				<units>kWh/Year</units>
+			</aux>
+			<aux name="Consommation unitaire\nlogement rénové">
+				<eqn>8000</eqn>
+				<units>kWh/Building/Year</units>
+			</aux>
+			<aux name="Consommation\nunitaire passoire">
+				<eqn>20000</eqn>
+				<units>kWh/Building/Year</units>
+			</aux>
+			<aux name="Emissions de GES évitées sans dimension">
+				<eqn>Emissions_de_GES_évitées / (&quot;Logements_à_rénover_+_Logements_rénovés&quot; * 2400)</eqn>
+				<units>Dimensionless</units>
+			</aux>
+			<aux name="Logements à rénover + Logements rénovés">
+				<eqn>Logements_à_rénover+Logements_rénovés</eqn>
+				<units>Buildings</units>
+			</aux>
+		</variables>
+		<views>
+			<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+				<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<isee:loop_indicator color="black" background="white" vertical_text_align="top" font_size="12pt"/>
+				<numeric_display color="white" background="white" font_size="12pt" border_width="thin" border_style="solid" isee:transparent="false" isee:show_divider="true" isee:show_bounding_box="true" label_side="left"/>
+				<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" isee:graph_area_color="white" legend_position="bottom" isee:transparent="false" isee:hide_border="false" axis_title_font_style="normal" axis_title_font_weight="normal" axis_title_text_decoration="none" axis_title_text_align="center" axis_title_vertical_text_align="center" axis_title_font_color="black" axis_title_font_family="Arial" axis_title_font_size="12pt" axis_title_text_padding="2" axis_title_text_border_color="black" axis_title_text_border_width="thin" axis_title_text_border_style="none" axis_label_font_style="normal" axis_label_font_weight="normal" axis_label_text_decoration="none" axis_label_text_align="center" axis_label_vertical_text_align="center" axis_label_font_color="black" axis_label_font_family="Arial" axis_label_font_size="9pt" axis_label_text_padding="2" axis_label_text_border_color="black" axis_label_text_border_width="thin" axis_label_text_border_style="none">
+					<isee:series_styles>
+						<isee:series_style color="blue" thickness="1"/>
+						<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF7F00" thickness="1"/>
+						<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF007F" thickness="1"/>
+						<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#C8C8C8" thickness="1"/>
+					</isee:series_styles>
+				</graph>
+				<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" interval="1" report_balances="beginning" report_flows="instantaneous" header_font_style="normal" header_font_weight="normal" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="12pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+				<button color="black" background="#E0E0E0" font_size="12pt" border_width="thin" border_style="solid" transparent="false" corner_radius="0" isee:flat="false" icon_side="top" isee:highlight_on_hover="false" isee:highlight_color="#959595"/>
+				<isee:annotation color="black" background="#E0E0E0" font_size="12pt" border_width="thin" border_style="solid" transparent="false" corner_radius="0" isee:flat="false" icon_side="top" isee:highlight_on_hover="false" isee:highlight_color="#959595" popup_corner_radius="0" popup_background_color="#FFFECF"/>
+				<slider color="#0075FF" background="#E0E0E0" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" vertical="false" isee:fancy_appearance="false" isee:show_hover_tip="when_deciding" input_expands="true" input_width="100"/>
+				<isee:stacked_container color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" padding="6 8" border_color="#999999" border_width="thin" border_style="solid" item_spacing="0" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD" transparent_bg="false"/>
+				<isee:dual_slider color="#66CC66" background="silver" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" isee:show_hover_tip="when_deciding" input_expands="true" input_width="100"/>
+				<isee:sim_speed_slider color="black" background="white"/>
+				<isee:time_slider color="#E95F74" background="silver"/>
+				<isee:pie_input color="black" background="white" font_size="12pt" legend_position="bottom" isee:transparent="false"/>
+				<knob color="#66CC66" background="#E0E0E0" font_size="12pt" label_side="bottom" wrap_title="true"/>
+				<numeric_input color="black" background="#E0E0E0" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<isee:dropdown_input color="black" background="#E0E0E0" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<switch color="black" background="#E0E0E0" font_size="12pt" label_side="top" wrap_title="true" isee:appearance="switch" isee:on_color="green"/>
+				<options color="black" background="white" appearance="radio-buttons" arrangement="vertical"/>
+				<graphical_input color="black" background="#E0E0E0" font_size="12pt" isee:show_hover_tip="true"/>
+				<group_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<lamp color="black" background="white" font_size="9pt"/>
+				<gauge color="black" background="white" font_size="9pt" needle_color="#F09F72" bar_color="#EEEEEE" bar_progress_color="black" appearance="radial" num_major_ticks="11" num_minor_ticks="1" show_numeric_value="true"/>
+				<isee:spatial_map color="black" background="white" font_size="12pt"/>
+				<isee:animation_object color="black" background="white" font_size="12pt"/>
+				<isee:navigation_widget color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" padding="6 8" border_color="#999999" border_width="thin" border_style="solid" item_spacing="6" appearance="tabs" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD" transparent_bg="false"/>
+				<isee:shape color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" border_width="thin" border_style="solid" opacity="1" transparent_background="true" corner_radius="1"/>
+				<isee:selector color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<isee:iframe color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" border_width="thin" border_style="solid"/>
+				<isee:financial_table color="black" background="#E0E0E0" text_align="right" font_size="12pt" hide_border="false" auto_fit="true" first_column_width="250" other_column_width="100" header_font_style="normal" header_font_weight="bold" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="14pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+			</style>
+			<view isee:show_pages="false" background="white" page_width="1123" page_height="793" isee:page_cols="3" isee:page_rows="2" isee:popup_graphs_are_comparative="false" isee:enable_non_negative_highlights="false" type="stock_flow">
+				<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+					<stock color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="45" height="35"/>
+					</stock>
+					<flow color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</flow>
+					<isee:placeholder color="#228B22" background="white" font_color="#228B22" font_size="9pt" label_side="bottom"/>
+					<module color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="55" height="45"/>
+					</module>
+					<aux color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</aux>
+					<group color="red" background="white" font_color="red" font_size="9pt"/>
+					<connector color="#FF007F" background="white" font_color="#FF007F" font_size="9pt" isee:thickness="1"/>
+					<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<isee:loop_indicator color="black" background="white" vertical_text_align="top" font_size="12pt"/>
+					<numeric_display color="white" background="white" font_size="12pt" border_width="thin" border_style="solid" isee:transparent="false" isee:show_divider="true" isee:show_bounding_box="true" label_side="left"/>
+					<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" isee:graph_area_color="white" legend_position="bottom" isee:transparent="false" isee:hide_border="false" axis_title_font_style="normal" axis_title_font_weight="normal" axis_title_text_decoration="none" axis_title_text_align="center" axis_title_vertical_text_align="center" axis_title_font_color="black" axis_title_font_family="Arial" axis_title_font_size="12pt" axis_title_text_padding="2" axis_title_text_border_color="black" axis_title_text_border_width="thin" axis_title_text_border_style="none" axis_label_font_style="normal" axis_label_font_weight="normal" axis_label_text_decoration="none" axis_label_text_align="center" axis_label_vertical_text_align="center" axis_label_font_color="black" axis_label_font_family="Arial" axis_label_font_size="9pt" axis_label_text_padding="2" axis_label_text_border_color="black" axis_label_text_border_width="thin" axis_label_text_border_style="none">
+						<isee:series_styles>
+							<isee:series_style color="blue" thickness="1"/>
+							<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF7F00" thickness="1"/>
+							<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF007F" thickness="1"/>
+							<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#C8C8C8" thickness="1"/>
+						</isee:series_styles>
+					</graph>
+					<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" interval="1" report_balances="beginning" report_flows="instantaneous" header_font_style="normal" header_font_weight="normal" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="12pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+				</style>
+				<stock color="#005500" background="#00AA00" font_weight="bold" font_color="#005500" x="570.834" y="287.888" name="Logements à rénover"/>
+				<stock color="black" background="#00AA00" font_weight="bold" font_color="black" x="738.167" y="287.888" name="Logements rénovés"/>
+				<flow color="#AA0145" background="#AA007F" font_weight="bold" font_color="#AA0145" x="648.501" y="290.555" name="Flux de rénovation">
+					<pts>
+						<pt x="593.334" y="290.555"/>
+						<pt x="715.667" y="290.555"/>
+					</pts>
+				</flow>
+				<flow color="#00007F" background="#55AAFF" font_weight="bold" font_color="#00007F" x="494.917" y="288.555" name="Entrée en besoins de\nrénovation énergétique">
+					<pts>
+						<pt x="441.5" y="288.555"/>
+						<pt x="548.334" y="288.555"/>
+					</pts>
+				</flow>
+				<stock color="#005500" background="#00AA00" font_weight="bold" font_color="#005500" label_side="top" x="191.444" y="409.333" width="57.7778" height="183.889" name="Capacité financière\npublique pour l'Ecorenov"/>
+				<flow color="#AA0145" background="#F8075B" font_weight="bold" font_color="#AA0145" label_side="bottom" x="318.194" y="422.555" name="Financement des aides">
+					<pts>
+						<pt x="249.222" y="422.555"/>
+						<pt x="411.166" y="422.555"/>
+					</pts>
+				</flow>
+				<flow color="#AA0145" background="#F8075B" font_weight="bold" font_color="#AA0145" label_side="bottom" x="320.416" y="474.222" name="Dépenses pour\nmain-d’œuvre">
+					<pts>
+						<pt x="249.222" y="474.222"/>
+						<pt x="415.611" y="474.222"/>
+					</pts>
+				</flow>
+				<flow color="#AA0145" background="#F8075B" font_weight="bold" font_color="#AA0145" label_side="bottom" x="321.527" y="528.667" name="Obtention\nmatières prémières">
+					<pts>
+						<pt x="249.222" y="528.667"/>
+						<pt x="417.833" y="528.667"/>
+					</pts>
+				</flow>
+				<flow color="#AA0145" background="#F8075B" font_weight="bold" font_color="#AA0145" x="322.361" y="581.444" name="Budget accompagnement">
+					<pts>
+						<pt x="249.222" y="581.444"/>
+						<pt x="419.5" y="581.444"/>
+					</pts>
+				</flow>
+				<flow color="#00007F" background="#55AAFF" font_weight="bold" font_color="#00007F" x="125.75" y="486.416" width="23.5556" height="23.5556" name="Recharge / allocation\nbudgétaire">
+					<pts>
+						<pt x="83.6111" y="498.194"/>
+						<pt x="191.444" y="498.194"/>
+					</pts>
+				</flow>
+				<stock color="#005500" background="#00AA00" font_weight="bold" font_color="#005500" label_side="bottom" x="888.834" y="451.777" name="Entreprises qualifiées\ndisponibles\npour l’ÉcoRénov"/>
+				<stock color="#005500" background="#00AA00" font_weight="bold" font_color="#005500" x="895.945" y="586.61" name="Stock de matériaux\ndisponibles"/>
+				<flow color="#00007F" background="#55AAFF" font_weight="bold" font_color="#00007F" x="818.695" y="450.999" name="Formation">
+					<pts>
+						<pt x="771.056" y="450.999"/>
+						<pt x="866.334" y="450.999"/>
+					</pts>
+				</flow>
+				<flow color="#AA0145" background="#F8075B" font_weight="bold" font_color="#AA0145" x="953.362" y="450.999" name="Sortie">
+					<pts>
+						<pt x="911.334" y="450.999"/>
+						<pt x="1019.39" y="450.999"/>
+					</pts>
+				</flow>
+				<flow color="#00007F" background="#55AAFF" font_weight="bold" font_color="#00007F" x="824.973" y="586.61" name="Approvisionnement en\nmatériaux">
+					<pts>
+						<pt x="776.5" y="586.61"/>
+						<pt x="873.445" y="586.61"/>
+					</pts>
+				</flow>
+				<flow color="#AA0145" background="#F8075B" font_weight="bold" font_color="#AA0145" x="961.583" y="585.499" name="Consommation de\nmatériaux">
+					<pts>
+						<pt x="918.445" y="585.499"/>
+						<pt x="1028.72" y="585.499"/>
+					</pts>
+				</flow>
+				<connector uid="1" color="black" font_color="black" angle="341.407">
+					<from>&quot;Dépenses_pour_main-d’œuvre&quot;</from>
+					<to>Formation</to>
+				</connector>
+				<connector uid="2" color="black" font_color="black" angle="25.2556">
+					<from>Obtention_matières_prémières</from>
+					<to>Approvisionnement_en_matériaux</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" label_side="bottom" x="759.278" y="359.444" name="Capacité de\nformation"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="832.695" y="332.111" name="Offres\nd'emploi"/>
+				<connector uid="3" color="black" font_color="black" angle="342.514">
+					<from>Capacité_de_formation</from>
+					<to>Formation</to>
+				</connector>
+				<connector uid="4" color="#00FF7F" font_color="#00FF7F" angle="298.953">
+					<from>Offres_d&apos;emploi</from>
+					<to>Formation</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="973.361" y="373.555" name="Taux de sortie"/>
+				<connector uid="5" color="black" font_color="black" angle="255.52">
+					<from>Taux_de_sortie</from>
+					<to>Sortie</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="731.917" y="661.61" name="Taux d'extraction des\nmatières prémières"/>
+				<connector uid="6" color="#2ACEE7" font_color="#2ACEE7" angle="38.8677">
+					<from>Taux_d&apos;extraction_des_matières_prémières</from>
+					<to>Approvisionnement_en_matériaux</to>
+				</connector>
+				<connector uid="7" color="black" font_color="black" angle="44.3249">
+					<from>Flux_de_rénovation</from>
+					<to>Consommation_de_matériaux</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="648.5" y="202.73" name="Volonté d’adopter\nl’ÉcoRénov"/>
+				<connector uid="8" color="#AA55FF" font_color="#AA55FF" angle="256.502">
+					<from>Volonté_d’adopter_l’ÉcoRénov</from>
+					<to>Flux_de_rénovation</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="716.833" y="77.1828" name="Influence sociale"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="539.334" y="190.908" name="Communication / Conseil\n(accompagnement)"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="602.334" y="50.0158" name="Niveau aides"/>
+				<connector uid="9" color="#2634EF" font_color="#2634EF" angle="286.82">
+					<from>Niveau_aides</from>
+					<to>Volonté_d’adopter_l’ÉcoRénov</to>
+				</connector>
+				<connector uid="11" color="#AA55FF" font_color="#AA55FF" angle="230.747">
+					<from>Influence_sociale</from>
+					<to>Volonté_d’adopter_l’ÉcoRénov</to>
+				</connector>
+				<connector uid="14" color="black" font_color="black" angle="4.61435">
+					<from>&quot;Communication_/_Conseil_(accompagnement)&quot;</from>
+					<to>Volonté_d’adopter_l’ÉcoRénov</to>
+				</connector>
+				<connector uid="19" color="black" font_color="black" angle="126.653">
+					<from>Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov</from>
+					<to>Flux_de_rénovation</to>
+				</connector>
+				<connector uid="20" color="black" font_color="black" angle="94.5983">
+					<from>Budget_accompagnement</from>
+					<to>&quot;Communication_/_Conseil_(accompagnement)&quot;</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="811.278" y="724.527" name="Prix unitaire\nmateriaux"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="876.223" y="661.61" name="Disponibilité de\nbons matériaux"/>
+				<connector uid="21" color="black" font_color="black" angle="104.472">
+					<from>Disponibilité_de_bons_matériaux</from>
+					<to>Approvisionnement_en_matériaux</to>
+				</connector>
+				<connector uid="22" color="black" font_color="black" angle="84.3294">
+					<from>Prix_unitaire_materiaux</from>
+					<to>Approvisionnement_en_matériaux</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="137.777" y="602.944" name="Pression politique /\nsuccès du programme"/>
+				<connector uid="25" color="black" font_color="black" angle="74.8183">
+					<from>&quot;Pression_politique_/_succès_du_programme&quot;</from>
+					<to>&quot;Recharge_/_allocation_budgétaire&quot;</to>
+				</connector>
+				<connector uid="27" color="#AA55FF" font_color="#AA55FF" angle="337.11">
+					<from>Logements_rénovés</from>
+					<to>Influence_sociale</to>
+				</connector>
+				<isee:loop_indicator color="#AA55FF" font_weight="bold" font_color="#AA55FF" text="" orientation="clockwise" uid="28" x="779.695" y="65.849" width="30" height="30">
+					<name>R1</name>
+				</isee:loop_indicator>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="1097.84" y="35.8255" name="Cout de la\nconsommation\nénérgétique pour\nles ménages"/>
+				<connector uid="31" angle="169.262">
+					<from>Cout_de_la_consommation_énérgétique_pour_les_ménages</from>
+					<to>Influence_sociale</to>
+				</connector>
+				<isee:loop_indicator color="#FF007F" font_weight="bold" font_color="#FF007F" text="" orientation="clockwise" uid="32" x="1082.84" y="115.683" width="30" height="30">
+					<name>R2</name>
+				</isee:loop_indicator>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="660.334" y="373.555" name="Durée de\nrénovation"/>
+				<connector uid="33" color="#00FF7F" font_color="#00FF7F" angle="98.1141">
+					<from>Durée_de_rénovation</from>
+					<to>Flux_de_rénovation</to>
+				</connector>
+				<connector uid="34" color="#00FF7F" font_color="#00FF7F" angle="330.985">
+					<from>Logements_à_rénover</from>
+					<to>Offres_d&apos;emploi</to>
+				</connector>
+				<connector uid="35" color="#00FF7F" font_color="#00FF7F" angle="149.889">
+					<from>Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov</from>
+					<to>Durée_de_rénovation</to>
+				</connector>
+				<isee:loop_indicator color="#00FF7F" font_weight="bold" font_color="#00FF7F" text="" orientation="clockwise" uid="37" x="861.223" y="368.734" width="30" height="30">
+					<name>B1</name>
+				</isee:loop_indicator>
+				<connector uid="38" color="#2ACEE7" font_color="#2ACEE7" angle="272.419">
+					<from>Stock_de_matériaux_disponibles</from>
+					<to>Disponibilité_de_bons_matériaux</to>
+				</connector>
+				<connector uid="39" color="#2ACEE7" font_color="#2ACEE7" angle="288.434">
+					<from>Disponibilité_de_bons_matériaux</from>
+					<to>Taux_d&apos;extraction_des_matières_prémières</to>
+				</connector>
+				<isee:loop_indicator color="#2ACEE7" font_weight="bold" font_color="#2ACEE7" text="" orientation="clockwise" uid="40" x="778.945" y="635.36" width="30" height="30">
+					<name>B2</name>
+				</isee:loop_indicator>
+				<flow color="#AA0145" background="#F8075B" font_weight="bold" font_color="#AA0145" label_side="right" label_angle="45" x="796.223" y="287.888" name="Retour en logements\nà rénover">
+					<pts>
+						<pt x="760.667" y="287.888"/>
+						<pt x="855.778" y="287.888"/>
+					</pts>
+				</flow>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="481.777" y="386.111" name="Taux de financement\npour aides"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="481.777" y="456.222" name="Taux de financement\npour main/maitrise d'oeuvre"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="481.777" y="518.444" name="Taux de financement\npour matières prémières"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="478.505" y="585.073" name="Taux de financement\npour accompagnement"/>
+				<connector uid="53" color="black" font_color="black" angle="175.295">
+					<from>Taux_de_financement_pour_aides</from>
+					<to>Financement_des_aides</to>
+				</connector>
+				<connector uid="54" color="black" font_color="black" angle="160.907">
+					<from>&quot;Taux_de_financement_pour_main/maitrise_d&apos;oeuvre&quot;</from>
+					<to>&quot;Dépenses_pour_main-d’œuvre&quot;</to>
+				</connector>
+				<connector uid="55" color="black" font_color="black" angle="169.833">
+					<from>Taux_de_financement_pour_matières_prémières</from>
+					<to>Obtention_matières_prémières</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="532.083" y="130.683" name="Confiance des ménages"/>
+				<connector uid="67" color="#2634EF" font_color="#2634EF" angle="90.4324">
+					<from>Financement_des_aides</from>
+					<to>Aides_norm</to>
+				</connector>
+				<connector uid="68" angle="142.883">
+					<from>Stock_de_matériaux_disponibles</from>
+					<to>Flux_de_rénovation</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="734.833" y="120.683" name="Qualité et confort\ndes logements\nrénovés"/>
+				<connector uid="69" color="#FF5500" font_color="#FF5500" angle="45.5565">
+					<from>Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov</from>
+					<to>Qualité_et_confort_des_logements_rénovés</to>
+				</connector>
+				<connector uid="70" color="#FF5500" font_color="#FF5500" angle="223.542">
+					<from>Qualité_et_confort_des_logements_rénovés</from>
+					<to>Volonté_d’adopter_l’ÉcoRénov</to>
+				</connector>
+				<isee:loop_indicator color="#FF5500" font_weight="bold" font_color="#FF5500" text="" orientation="clockwise" uid="71" x="911.334" y="325.388" width="30" height="30">
+					<name>B3</name>
+				</isee:loop_indicator>
+				<connector uid="72" color="black" font_color="black" angle="356.601">
+					<from>Confiance_des_ménages</from>
+					<to>Volonté_d’adopter_l’ÉcoRénov</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" label_side="top" x="113.181" y="400.333" name="Economies réalisées\nvia Ecorénov"/>
+				<connector uid="73" color="#2634EF" font_color="#2634EF" angle="301.353">
+					<from>Economies_réalisées_via_Ecorénov</from>
+					<to>&quot;Recharge_/_allocation_budgétaire&quot;</to>
+				</connector>
+				<connector uid="74" color="#2634EF" font_color="#2634EF" angle="152.055">
+					<from>Flux_de_rénovation</from>
+					<to>Economies_réalisées_via_Ecorénov</to>
+				</connector>
+				<isee:loop_indicator color="#2634EF" font_weight="bold" font_color="#2634EF" text="" orientation="clockwise" uid="75" x="236.833" y="302.444" width="30" height="30">
+					<name>R3</name>
+				</isee:loop_indicator>
+				<isee:loop_indicator color="#AA55FF" font_weight="bold" font_color="#AA55FF" font_size="10pt" text="" orientation="clockwise" uid="77" x="20.0003" y="11.0158" width="22" height="18.6667">
+					<name>R1</name>
+				</isee:loop_indicator>
+				<text_box font_weight="bold" font_color="#AA55FF" font_size="10pt" uid="78" x="49.194" y="11.1639" width="187.639" height="18.3704">Influence sociale et motivation</text_box>
+				<isee:loop_indicator color="#FF007F" font_weight="bold" font_color="#FF007F" font_size="10pt" text="" orientation="clockwise" uid="79" x="20.0003" y="59.0158" width="22" height="16.6667">
+					<name>R2</name>
+				</isee:loop_indicator>
+				<text_box font_weight="bold" font_color="#FF007F" font_size="10pt" uid="80" x="48.4533" y="59.0158" width="127.778" height="16.6667">Economies d&apos;énergie</text_box>
+				<isee:loop_indicator color="#2634EF" font_weight="bold" font_color="#2634EF" font_size="10pt" text="" orientation="clockwise" uid="81" x="23.5929" y="104.222" width="14.8148" height="22.2222">
+					<name>R3</name>
+				</isee:loop_indicator>
+				<text_box font_weight="bold" font_color="#2634EF" font_size="10pt" uid="82" x="48.0829" y="106.444" width="171.482" height="17.7778">Investissements et charges</text_box>
+				<isee:loop_indicator color="#00FF7F" font_weight="bold" font_color="#00FF7F" font_size="10pt" text="" orientation="clockwise" uid="83" x="22.667" y="156.925" width="16.6667" height="19.6296">
+					<name>B1</name>
+				</isee:loop_indicator>
+				<text_box font_weight="bold" font_color="#00FF7F" font_size="10pt" uid="84" x="45.1198" y="157.851" width="252.963" height="17.7778">Contrainte main d&apos;oeuvre- durée des travaux</text_box>
+				<isee:loop_indicator color="#2ACEE7" font_weight="bold" font_color="#2ACEE7" font_size="10pt" text="" orientation="clockwise" uid="86" x="20.042" y="204.241" width="21.25" height="15.7857">
+					<name>B2</name>
+				</isee:loop_indicator>
+				<text_box font_weight="bold" font_color="#2ACEE7" font_size="10pt" uid="87" x="47.2503" y="206.579" width="202.13" height="17.7778">Disponibilité limitée des matériaux</text_box>
+				<isee:loop_indicator color="#FF5500" font_weight="bold" font_color="#FF5500" font_size="10pt" text="" orientation="clockwise" uid="88" x="16.2142" y="252.544" width="27.7462" height="16.25">
+					<name>B3</name>
+				</isee:loop_indicator>
+				<text_box font_weight="bold" font_color="#FF5500" font_size="10pt" uid="89" x="48.0345" y="252.577" width="189.958" height="17.7778">Saturation du marché de la rénovation</text_box>
+				<connector uid="90" color="black" font_color="black" angle="150.377">
+					<from>Taux_de_financement_pour_accompagnement</from>
+					<to>Budget_accompagnement</to>
+				</connector>
+				<connector uid="95" color="black" font_color="black" angle="70.5964">
+					<from>Capacité_financière_publique_pour_l&apos;Ecorenov</from>
+					<to>Financement_des_aides</to>
+				</connector>
+				<connector uid="96" color="black" font_color="black" angle="49.1169">
+					<from>Capacité_financière_publique_pour_l&apos;Ecorenov</from>
+					<to>&quot;Dépenses_pour_main-d’œuvre&quot;</to>
+				</connector>
+				<connector uid="97" color="black" font_color="black" angle="309.469">
+					<from>Capacité_financière_publique_pour_l&apos;Ecorenov</from>
+					<to>Obtention_matières_prémières</to>
+				</connector>
+				<connector uid="99" color="black" font_color="black" angle="289.778">
+					<from>Capacité_financière_publique_pour_l&apos;Ecorenov</from>
+					<to>Budget_accompagnement</to>
+				</connector>
+				<connector uid="100" color="black" font_color="black" angle="26.2824">
+					<from>Entreprises_qualifiées_disponibles_pour_l’ÉcoRénov</from>
+					<to>Sortie</to>
+				</connector>
+				<connector uid="101" color="black" font_color="black" angle="347.288">
+					<from>Logements_à_rénover</from>
+					<to>Flux_de_rénovation</to>
+				</connector>
+				<connector uid="102" color="black" font_color="black" angle="25.5979">
+					<from>Stock_de_matériaux_disponibles</from>
+					<to>Consommation_de_matériaux</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" label_side="top" x="61.6267" y="456.222" name="Economies réalisées\npar une rénovation"/>
+				<connector uid="107" color="black" font_color="black" angle="76.0632">
+					<from>Economies_réalisées_par_une_rénovation</from>
+					<to>Economies_réalisées_via_Ecorénov</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="275.833" y="688.944" name="Taux depense annuel"/>
+				<connector uid="108" color="black" font_color="black" angle="105.965">
+					<from>Taux_depense_annuel</from>
+					<to>Financement_des_aides</to>
+				</connector>
+				<connector uid="109" color="black" font_color="black" angle="103.271">
+					<from>Taux_depense_annuel</from>
+					<to>&quot;Dépenses_pour_main-d’œuvre&quot;</to>
+				</connector>
+				<connector uid="110" color="black" font_color="black" angle="99.0872">
+					<from>Taux_depense_annuel</from>
+					<to>Obtention_matières_prémières</to>
+				</connector>
+				<connector uid="111" color="black" font_color="black" angle="91.5961">
+					<from>Taux_depense_annuel</from>
+					<to>Budget_accompagnement</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="727.917" y="407.734" name="Cout formation\npar entreprise"/>
+				<connector uid="117" color="black" font_color="black" angle="359.167">
+					<from>Cout_formation_par_entreprise</from>
+					<to>Formation</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="990.167" y="654.296" name="Matériaux rénovation"/>
+				<connector uid="118" color="black" font_color="black" angle="80.3738">
+					<from>Matériaux_rénovation</from>
+					<to>Consommation_de_matériaux</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="660.334" y="433.944" name="Taux augmentation\ncapacité formation"/>
+				<connector uid="119" color="black" font_color="black" angle="45.3687">
+					<from>Taux_augmentation_capacité_formation</from>
+					<to>Capacité_de_formation</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="590.095" y="359.444" name="Durée référence"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="584.805" y="407.734" name="Main référence"/>
+				<connector uid="120" color="black" font_color="black" angle="20.6484">
+					<from>Durée_référence</from>
+					<to>Durée_de_rénovation</to>
+				</connector>
+				<connector uid="121" color="black" font_color="black" angle="24.3478">
+					<from>Main_référence</from>
+					<to>Durée_de_rénovation</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="818.695" y="225.651" name="Taux retour logements"/>
+				<connector uid="122" color="black" font_color="black" angle="198.051">
+					<from>Taux_retour_logements</from>
+					<to>Retour_en_logements_à_rénover</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="666.5" y="32.0158" name="Reste à charge max"/>
+				<connector uid="123" color="black" font_color="black" angle="263.981">
+					<from>Reste_à_charge_max</from>
+					<to>Volonté_d’adopter_l’ÉcoRénov</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="503.334" y="53.8255" name="Aides norm"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="440.724" y="35.8255" name="Aides ref"/>
+				<connector uid="124" color="black" font_color="black" angle="9.69889">
+					<from>Aides_ref</from>
+					<to>Aides_norm</to>
+				</connector>
+				<connector uid="125" color="#2634EF" font_color="#2634EF" angle="20.4209">
+					<from>Aides_norm</from>
+					<to>Niveau_aides</to>
+				</connector>
+				<connector uid="126" color="black" font_color="black" angle="299.656">
+					<from>Aides_norm</from>
+					<to>Confiance_des_ménages</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="455.838" y="179.575" name="Aides accompagnement"/>
+				<connector uid="127" color="black" font_color="black" angle="11.4124">
+					<from>Aides_accompagnement</from>
+					<to>&quot;Communication_/_Conseil_(accompagnement)&quot;</to>
+				</connector>
+				<connector uid="129" color="#030002" font_color="#030002" angle="180.127">
+					<from>Retour_en_logements_à_rénover</from>
+					<to>Entrée_en_besoins_de_rénovation_énergétique</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" label_side="bottom" x="875.667" y="98.849" name="Emissions de GES\névitées"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" label_side="bottom" x="945.931" y="56.849" name="Facteur d'émission\nGES moyen"/>
+				<connector uid="136" color="#090005" font_color="#090005" angle="210.869">
+					<from>Facteur_d&apos;émission_GES_moyen</from>
+					<to>Emissions_de_GES_évitées</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" label_side="bottom" x="1110.03" y="220.73" name="Consommation\nénérgétique\ndes logements"/>
+				<connector uid="137" color="black" font_color="black" angle="133.234">
+					<from>Consommation_énérgétique_des_logements</from>
+					<to>Emissions_de_GES_évitées</to>
+				</connector>
+				<connector uid="138" angle="338.264">
+					<from>Logements_rénovés</from>
+					<to>Consommation_énérgétique_des_logements</to>
+				</connector>
+				<connector uid="139" color="#030002" font_color="#030002" angle="349.605">
+					<from>Logements_à_rénover</from>
+					<to>Consommation_énérgétique_des_logements</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" label_side="bottom" x="1172.31" y="243.651" name="Consommation unitaire\nlogement rénové"/>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" label_side="bottom" x="1194.12" y="191.206" name="Consommation\nunitaire passoire"/>
+				<connector uid="140" color="#070004" font_color="#070004" angle="159.795">
+					<from>Consommation_unitaire_logement_rénové</from>
+					<to>Consommation_énérgétique_des_logements</to>
+				</connector>
+				<connector uid="141" color="#070004" font_color="#070004" angle="199.346">
+					<from>Consommation_unitaire_passoire</from>
+					<to>Consommation_énérgétique_des_logements</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="800.695" y="161.575" name="Emissions de GES évitées sans dimension"/>
+				<connector uid="16" color="black" font_color="black" angle="195.131">
+					<from>Emissions_de_GES_évitées_sans_dimension</from>
+					<to>Volonté_d’adopter_l’ÉcoRénov</to>
+				</connector>
+				<connector uid="144" angle="241.676">
+					<from>Emissions_de_GES_évitées</from>
+					<to>Emissions_de_GES_évitées_sans_dimension</to>
+				</connector>
+				<connector uid="145" angle="76.1117">
+					<from>Consommation_énérgétique_des_logements</from>
+					<to>Cout_de_la_consommation_énérgétique_pour_les_ménages</to>
+				</connector>
+				<aux color="#9E8B2E" background="#F3F300" font_weight="bold" font_color="#9E8B2E" x="1007.58" y="202.73" name="Logements à rénover + Logements rénovés"/>
+				<connector uid="146" color="black" font_color="black" angle="27.2771">
+					<from>Logements_à_rénover</from>
+					<to>&quot;Logements_à_rénover_+_Logements_rénovés&quot;</to>
+				</connector>
+				<connector uid="147" color="#090005" font_color="#090005" angle="29.0829">
+					<from>Logements_rénovés</from>
+					<to>&quot;Logements_à_rénover_+_Logements_rénovés&quot;</to>
+				</connector>
+				<connector uid="149" color="black" font_color="black" angle="97.4916">
+					<from>&quot;Logements_à_rénover_+_Logements_rénovés&quot;</from>
+					<to>Emissions_de_GES_évitées</to>
+				</connector>
+				<connector uid="150" color="black" font_color="black" angle="156.343">
+					<from>&quot;Logements_à_rénover_+_Logements_rénovés&quot;</from>
+					<to>Emissions_de_GES_évitées_sans_dimension</to>
+				</connector>
+				<connector uid="151" color="black" font_color="black" angle="61.5968">
+					<from>&quot;Logements_à_rénover_+_Logements_rénovés&quot;</from>
+					<to>Cout_de_la_consommation_énérgétique_pour_les_ménages</to>
+				</connector>
+				<connector uid="152" color="black" font_color="black" angle="18.0391">
+					<from>Logements_rénovés</from>
+					<to>Retour_en_logements_à_rénover</to>
+				</connector>
+				<connector uid="153" color="#070004" font_color="#070004" angle="127.511">
+					<from>Consommation_unitaire_passoire</from>
+					<to>Emissions_de_GES_évitées</to>
+				</connector>
+				<connector uid="154" color="black" font_color="black" angle="84.2538">
+					<from>Capacité_financière_publique_pour_l&apos;Ecorenov</from>
+					<to>Aides_ref</to>
+				</connector>
+				<connector uid="155" color="#040002" font_color="#040002" angle="129.396">
+					<from>Taux_de_financement_pour_aides</from>
+					<to>Aides_ref</to>
+				</connector>
+				<connector uid="156" color="black" font_color="black" angle="67.8869">
+					<from>Taux_depense_annuel</from>
+					<to>Aides_ref</to>
+				</connector>
+				<connector uid="157" angle="74.7515">
+					<from>Capacité_financière_publique_pour_l&apos;Ecorenov</from>
+					<to>Aides_accompagnement</to>
+				</connector>
+				<connector uid="158" angle="66.6851">
+					<from>Taux_de_financement_pour_accompagnement</from>
+					<to>Aides_accompagnement</to>
+				</connector>
+				<connector uid="159" angle="49.5575">
+					<from>Taux_depense_annuel</from>
+					<to>Aides_accompagnement</to>
+				</connector>
+			</view>
+			<view isee:template_view="template:1" isee:name="Landing Page without image" isee:original_design="Deluxe Prev-Next Blue Green Pastel" background="white" page_width="1066" page_height="600" home_view="true" type="interface">
+				<style>
+					<isee:stacked_container item_spacing="0" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD" transparent_bg="false"/>
+				</style>
+				<text_box z_index="3" font_color="#284B63" font_size="16pt" appearance="transparent" x="62.9484" y="334.573" width="472.088" height="64.3478">Insert subtitle here, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</text_box>
+				<button z_index="3" background="#3D405B" font_color="#F4F1DE" font_family="Arial Rounded MT Bold" font_size="18pt" border_width="thin" border_style="none" corner_radius="26" isee:flat="false" isee:highlight_on_hover="true" label="LET'S GO!" isee:tooltip="" x="226.447" y="409.409" width="173.091" height="44.5455">
+					<actions>
+						<action target="next_page">navigate</action>
+					</actions>
+				</button>
+				<text_box z_index="3" font_weight="bold" font_color="#3C6E71" font_size="36pt" appearance="transparent" x="67.3455" y="221.276" width="505.399" height="85.1739">Insert project title here
+Lorem ipsum dolor sit amet</text_box>
+				<isee:shape background="#CEDBDC" border_width="thin" border_style="none" transparent_background="false" x="0" y="60" width="1000" height="480" kind="rectangle"/>
+				<isee:shape border_color="#284B63" border_width="6" x="62.5368" y="302.381" width="609.474" height="18.9344" kind="hline"/>
+			</view>
+			<isee:templates>
+				<view isee:name="Plain base" isee:original_design="Deluxe Prev-Next Blue Green Pastel" background="white" page_width="1066" page_height="600" type="template">
+					<style>
+						<isee:stacked_container item_spacing="0" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD" transparent_bg="false"/>
+					</style>
+					<isee:shape background="#F7F7F7" border_width="thin" border_style="none" transparent_background="false" x="0" y="0" width="1066" height="600" kind="rectangle"/>
+					<graphics_frame z_index="2" fill="none" x="12.4806" y="16.9825" width="166" height="34">
+						<image width="121" height="20" size_to_parent="false" isee:transparency="0" isee:fixed_aspect_ratio="true">r../Stella Architect Trial/designs/Deluxe Prev-Next Blue Green Pastel_Graphics/Your logo dark.png</image>
+					</graphics_frame>
+				</view>
+			</isee:templates>
+			<isee:stories/>
+		</views>
+	</model>
+</xmile>
+
